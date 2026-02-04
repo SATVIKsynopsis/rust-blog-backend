@@ -1,0 +1,16 @@
+/target
+**/*.rs.bk
+Cargo.lock
+.env
+.env.*
+!.env.example
+.sqlx
+*.log
+tmp/
+temp/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
