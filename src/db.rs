@@ -169,14 +169,14 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
     }
 
     async fn create_post<T: Into<String> + Send>(
-    &self,
-    author_id: Uuid,
-    title: T,
-    content: T,
-) -> Result<Post, sqlx::Error> {
-    let post = sqlx::query_as!(
-        Post,
-        r#"
+        &self,
+        author_id: Uuid,
+        title: T,
+        content: T,
+    ) -> Result<Post, sqlx::Error> {
+        let post = sqlx::query_as!(
+            Post,
+            r#"
         INSERT INTO posts (author_id, title, content)
         VALUES ($1, $2, $3)
         RETURNING
@@ -187,15 +187,15 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
             created_at,
             updated_at
         "#,
-        author_id,
-        title.into(),
-        content.into()
-    )
-    .fetch_one(&self.pool)
-    .await?;
+            author_id,
+            title.into(),
+            content.into()
+        )
+        .fetch_one(&self.pool)
+        .await?;
 
-    Ok(post)
-}
+        Ok(post)
+    }
 
     async fn like_post(&self, user_id: Uuid, post_id: Uuid) -> Result<Like, sqlx::Error> {
         let like = sqlx::query_as!(
@@ -271,15 +271,15 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
     }
 
     async fn update_post(
-    &self,
-    post_id: Uuid,
-    author_id: Uuid,
-    title: &str,
-    content: &str,
-) -> Result<Post, sqlx::Error> {
-    let post = sqlx::query_as!(
-        Post,
-        r#"
+        &self,
+        post_id: Uuid,
+        author_id: Uuid,
+        title: &str,
+        content: &str,
+    ) -> Result<Post, sqlx::Error> {
+        let post = sqlx::query_as!(
+            Post,
+            r#"
         UPDATE posts
         SET
             title = $1,
@@ -295,38 +295,36 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
             created_at,
             updated_at
         "#,
-        title,
-        content,
-        post_id,
-        author_id
-    )
-    .fetch_one(&self.pool)
-    .await?;
+            title,
+            content,
+            post_id,
+            author_id
+        )
+        .fetch_one(&self.pool)
+        .await?;
 
-    Ok(post)
-}
+        Ok(post)
+    }
 
-
-   async fn delete_post(&self, post_id: Uuid, author_id: Uuid) -> Result<(), sqlx::Error> {
-    let result = sqlx::query!(
-        r#"
+    async fn delete_post(&self, post_id: Uuid, author_id: Uuid) -> Result<(), sqlx::Error> {
+        let result = sqlx::query!(
+            r#"
         DELETE FROM posts
         WHERE id = $1
           AND author_id = $2
         "#,
-        post_id,
-        author_id
-    )
-    .execute(&self.pool)
-    .await?;
+            post_id,
+            author_id
+        )
+        .execute(&self.pool)
+        .await?;
 
-    if result.rows_affected() == 0 {
-        return Err(sqlx::Error::RowNotFound);
+        if result.rows_affected() == 0 {
+            return Err(sqlx::Error::RowNotFound);
+        }
+
+        Ok(())
     }
-
-    Ok(())
-}
-
 
     async fn get_users(&self, page: u32, limit: u32) -> Result<Vec<User>, sqlx::Error> {
         let offset = (page - 1) * limit;

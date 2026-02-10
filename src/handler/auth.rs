@@ -31,8 +31,8 @@ pub async fn register(
     body.validate()
         .map_err(|e| HttpError::bad_request(format!("Validation error: {}", e)))?;
 
-    let hashed_password =
-        password::hash_password(&body.password).map_err(|e| HttpError::bad_request(e.to_string()))?;
+    let hashed_password = password::hash_password(&body.password)
+        .map_err(|e| HttpError::bad_request(e.to_string()))?;
 
     let result = app_state
         .db_client
@@ -85,13 +85,12 @@ pub async fn login(
         .map_err(|e| HttpError::server_error(e.to_string()))?;
 
         let cookie_duration = time::Duration::minutes(app_state.env.jwt_maxage * 60);
-       let cookie = Cookie::build(("token", token.clone()))
-    .path("/")
-    .max_age(cookie_duration)
-    .http_only(true)
-    .same_site(axum_extra::extract::cookie::SameSite::Lax)
-    .build();
-
+        let cookie = Cookie::build(("token", token.clone()))
+            .path("/")
+            .max_age(cookie_duration)
+            .http_only(true)
+            .same_site(axum_extra::extract::cookie::SameSite::Lax)
+            .build();
 
         let response = axum::response::Json(UserLoginResponseDto {
             status: "success".to_string(),

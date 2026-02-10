@@ -24,10 +24,11 @@ RUN cargo build --release
 # ---------- Runtime stage ----------
 FROM debian:bookworm-slim
 
-# Install required system libs (important for TLS, Postgres, etc.)
+# Install extra dependencies often needed by Rust crates
 RUN apt-get update && apt-get install -y \
     ca-certificates \
-    libssl3 \
+    libssl-dev \
+    libc6 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user (best practice)
@@ -47,4 +48,4 @@ USER appuser
 EXPOSE 8000
 
 # Run the app
-CMD ["sh", "-c", "echo STARTING && ./app || echo APP_CRASHED"]
+CMD ["./app"]

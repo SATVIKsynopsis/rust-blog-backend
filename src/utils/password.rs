@@ -44,8 +44,8 @@ pub fn compare_password(hashed_password: &str, password: &str) -> Result<bool, H
         ));
     }
 
-    let parsed_hash =
-        PasswordHash::new(hashed_password).map_err(|_| HttpError::bad_request(ErrorMessage::InvalidHashFormat.to_string()))?;
+    let parsed_hash = PasswordHash::new(hashed_password)
+        .map_err(|_| HttpError::bad_request(ErrorMessage::InvalidHashFormat.to_string()))?;
 
     let password_verify = Argon2::default()
         .verify_password(password.as_bytes(), &parsed_hash)

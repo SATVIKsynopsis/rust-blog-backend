@@ -121,8 +121,8 @@ pub async fn update_user_password(
         ));
     }
 
-    let hash_password =
-        password::hash_password(&body.new_password).map_err(|e| HttpError::bad_request(e.to_string()))?;
+    let hash_password = password::hash_password(&body.new_password)
+        .map_err(|e| HttpError::bad_request(e.to_string()))?;
 
     app_state
         .db_client

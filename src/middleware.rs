@@ -15,7 +15,7 @@ use crate::{
     AppState,
     db::UserExt,
     error::{ErrorMessage, HttpError},
-    models::{User},
+    models::User,
     utils::token,
 };
 
@@ -85,7 +85,6 @@ pub async fn role_check(
         .extensions()
         .get::<JWTAuthMiddleware>()
         .ok_or_else(|| HttpError::unauthorized(ErrorMessage::UserNotAuthenticated.to_string()))?;
-
 
     Ok(next.run(req).await)
 }

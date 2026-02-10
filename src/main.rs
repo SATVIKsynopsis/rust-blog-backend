@@ -16,10 +16,10 @@ use axum::http::{
 };
 use config::Config;
 use db::{DBClient, UserExt};
-use tower_http::cors::Any;
 use dotenv::dotenv;
 use router::create_router;
 use sqlx::postgres::PgPoolOptions;
+use tower_http::cors::Any;
 use tower_http::cors::CorsLayer;
 use tracing_subscriber::filter::LevelFilter;
 
@@ -31,6 +31,7 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() {
+    println!("🚀 MAIN STARTED");
     tracing_subscriber::fmt()
         .with_max_level(LevelFilter::DEBUG)
         .init();
@@ -54,10 +55,10 @@ async fn main() {
     };
 
     let cors = CorsLayer::new()
-    .allow_origin(Any)
-    .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-    .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCEPT, COOKIE])
-    .allow_credentials(true);
+        .allow_origin(Any)
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCEPT, COOKIE])
+        .allow_credentials(false);
 
     let db_client = DBClient::new(pool);
     let app_state = Arc::new(AppState {

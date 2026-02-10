@@ -7,12 +7,11 @@ use crate::{
     AppState,
     handler::{auth::auth_handler, post::post_handler, user::users_handler},
     middleware::JWTAuthMiddleware,
-    middleware::auth
+    middleware::auth,
 };
 
 pub fn create_router(app_state: Arc<AppState>) -> Router {
-    let public_routes = Router::new()
-        .nest("/auth", auth_handler());
+    let public_routes = Router::new().nest("/auth", auth_handler());
 
     let protected_routes = Router::new()
         .merge(users_handler())
