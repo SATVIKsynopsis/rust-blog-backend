@@ -47,4 +47,4 @@ USER appuser
 EXPOSE 8000
 
 # Run the app
-CMD ["./app"]
+CMD ["sh", "-c", "echo STARTING && ./app || echo APP_CRASHED"]
