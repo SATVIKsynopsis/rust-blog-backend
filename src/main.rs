@@ -54,16 +54,16 @@ async fn main() {
         }
     };
 
-   let cors = CorsLayer::new()
-    .allow_origin([
-        "http://localhost:3000".parse::<HeaderValue>().unwrap(),
-        "https://your-frontend-domain.vercel.app"
-            .parse::<HeaderValue>()
-            .unwrap(),
-    ])
-    .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-    .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCEPT, COOKIE])
-    .allow_credentials(true);
+    let cors = CorsLayer::new()
+        .allow_origin([
+            "http://localhost:3000".parse::<HeaderValue>().unwrap(),
+            "https://bloggy-xi-indol.vercel.app/"
+                .parse::<HeaderValue>()
+                .unwrap(),
+        ])
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCEPT, COOKIE])
+        .allow_credentials(true);
 
     let db_client = DBClient::new(pool);
     let app_state = Arc::new(AppState {

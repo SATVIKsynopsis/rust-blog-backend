@@ -85,11 +85,12 @@ pub async fn login(
         .map_err(|e| HttpError::server_error(e.to_string()))?;
 
         let cookie_duration = time::Duration::minutes(app_state.env.jwt_maxage * 60);
-        let cookie = Cookie::build(("token", token.clone()))
+        let cookie = Cookie::build(("access_token", token.clone()))
             .path("/")
-            .max_age(cookie_duration)
             .http_only(true)
-            .same_site(axum_extra::extract::cookie::SameSite::Lax)
+            .secure(true)
+            .same_site(axum_extra::extract::cookie::SameSite::None)
+            .max_age(cookie_duration)
             .build();
 
         let response = axum::response::Json(UserLoginResponseDto {
