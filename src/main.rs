@@ -54,7 +54,7 @@ async fn main() {
     };
 
     let cors = CorsLayer::new()
-    .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+    .allow_origin(Any)
     .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
     .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCEPT, COOKIE])
     .allow_credentials(true);
