@@ -31,7 +31,7 @@ pub async fn auth(
     next: Next,
 ) -> Result<impl IntoResponse, HttpError> {
     let cookies = cookie_jar
-        .get("token")
+        .get("access_token")
         .map(|cookie| cookie.value().to_string())
         .or_else(|| {
             req.headers()
