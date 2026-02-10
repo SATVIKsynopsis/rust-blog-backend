@@ -24,28 +24,24 @@ RUN cargo build --release
 # ---------- Runtime stage ----------
 FROM debian:bookworm-slim
 
-# Install extra dependencies often needed by Rust crates
+# Install only the necessary runtime libraries
 RUN apt-get update && apt-get install -y \
     ca-certificates \
-    libssl-dev \
-    libc6 \
+    libssl3 \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user (best practice)
+# Create non-root user
 RUN useradd -m appuser
-
 WORKDIR /app
 
-# Copy compiled binary from builder
+# Copy the binary
 COPY --from=builder /app/target/release/blog-backend /app/app
 
-# Change ownership
+# Set permissions
 RUN chown -R appuser:appuser /app
-
 USER appuser
 
-# Expose your backend port
+# Render uses the PORT env var; EXPOSE is just documentation
 EXPOSE 8000
 
-# Run the app
 CMD ["./app"]
