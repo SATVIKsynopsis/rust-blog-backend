@@ -57,11 +57,17 @@ async fn main() {
     let cors = CorsLayer::new()
         .allow_origin([
             "http://localhost:3000".parse::<HeaderValue>().unwrap(),
-            "https://bloggy-xi-indol.vercel.app/"
+            "https://bloggy-xi-indol.vercel.app"
                 .parse::<HeaderValue>()
                 .unwrap(),
         ])
-        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
         .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCEPT, COOKIE])
         .allow_credentials(true);
 
