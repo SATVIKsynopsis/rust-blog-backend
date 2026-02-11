@@ -27,6 +27,7 @@ pub fn post_handler() -> Router {
         .route("/posts", get(all_posts))
         .route("/post/:id", put(update_post))
         .route("/post/:id", delete(delete_post))
+        .route("/posts/my", get(get_my_posts))
 }
 
 pub async fn create_post(
@@ -92,6 +93,19 @@ pub async fn all_posts(
         results: posts.len() as i64,
         posts,
     }))
+}
+
+pub async fn get_my_posts(
+    Extension(auth): Extension<JWTAuthMiddleware>,
+    Extension(app_state): Extension<Arc<AppState>>,
+) -> Result<Json<Vec<Post>>, HttpError> {
+    let posts = app_state
+        .db_client
+        .get_user_posts(auth.user.id)
+        .await
+        .map_err(|e| HttpError::server_error(e.to_string()))?;
+
+    Ok(Json(posts))
 }
 
 pub async fn update_post(

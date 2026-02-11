@@ -76,6 +76,8 @@ pub trait UserExt {
     ) -> Result<Post, sqlx::Error>;
 
     async fn delete_post(&self, post_id: Uuid, user_id: Uuid) -> Result<(), sqlx::Error>;
+
+    async fn get_user_posts(&self, author_id: Uuid) -> Result<Vec<Post>, sqlx::Error>;
 }
 
 #[async_trait]
@@ -254,6 +256,26 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
 
         Ok(post)
     }
+
+    async fn get_user_posts(
+    &self,
+    author_id: Uuid,
+) -> Result<Vec<Post>, sqlx::Error> {
+    let posts = sqlx::query_as!(
+        Post,
+        r#"
+        SELECT author_id, id, title, content, created_at, updated_at
+        FROM posts
+        WHERE author_id = $1
+        ORDER BY created_at DESC
+        "#,
+        author_id
+    )
+    .fetch_all(&self.pool)
+    .await?;
+
+    Ok(posts)
+}
 
     async fn get_posts(&self, page: u32, limit: usize) -> Result<Vec<Post>, sqlx::Error> {
         let offset = (page - 1) * limit as u32;
