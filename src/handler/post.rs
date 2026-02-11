@@ -28,6 +28,7 @@ pub fn post_handler() -> Router {
         .route("/post/:id", put(update_post))
         .route("/post/:id", delete(delete_post))
         .route("/posts/my", get(get_my_posts))
+        .route("/post/:id/views", get(increment_view))
 }
 
 pub async fn create_post(
@@ -150,4 +151,23 @@ pub async fn delete_post(
             message: "Post deleted successfully!".to_string(),
         }),
     ))
+}
+
+pub async fn increment_view(Path(post_id): Path<Uuid>, Extension(app_state): Extension<Arc<AppState>>, Extension(user): Extension<JWTAuthMiddleware>) -> Result<impl IntoResponse, HttpError> {
+
+    let view_count = app_state
+        .db_client
+        .increment_view(post_id)
+        .await
+        .map_err(|e| HttpError::server_error(e.to_string()))?;
+
+    let post = app_state
+        .db_client
+        .get_post(post_id)
+        .await
+        .map_err(|e| HttpError::server_error(e.to_string()))?
+        .ok_or(HttpError::not_found("Post not found"))?;
+
+    Ok((view_count))
+
 }
