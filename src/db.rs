@@ -186,6 +186,7 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
         RETURNING
             author_id,
             id,
+            views,
             title,
             content,
             created_at,
@@ -247,7 +248,7 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
         let post = sqlx::query_as!(
             Post,
             r#"
-        SELECT author_id, id, title, content, created_at, updated_at
+        SELECT author_id, id, views, title, content, created_at, updated_at
         FROM posts
         WHERE id = $1
         "#,
@@ -263,7 +264,7 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
         let posts = sqlx::query_as!(
             Post,
             r#"
-        SELECT author_id, id, title, content, created_at, updated_at
+        SELECT author_id, id, title, views, content, created_at, updated_at
         FROM posts
         WHERE author_id = $1
         ORDER BY created_at DESC
@@ -281,7 +282,7 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
         let posts = sqlx::query_as!(
             Post,
             r#"
-        SELECT author_id, id, title, content, created_at, updated_at
+        SELECT author_id, id, title, views, content, created_at, updated_at
         FROM posts
         "#
         )
@@ -312,6 +313,7 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
             author_id,
             id,
             title,
+            views,
             content,
             created_at,
             updated_at

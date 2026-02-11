@@ -18,6 +18,7 @@ pub struct User {
 pub struct Post {
     pub author_id: Uuid,
     pub id: Uuid,
+    pub views: i64,
     pub title: String,
     pub content: String,
     pub created_at: DateTime<Utc>,
