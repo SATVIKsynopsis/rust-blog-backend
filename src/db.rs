@@ -82,6 +82,8 @@ pub trait UserExt {
     async fn increment_view(&self, post_id: Uuid) -> Result<(), sqlx::Error>;
 
     async fn unlike_post(&self, user_id: Uuid, post_id: Uuid) -> Result<(), sqlx::Error>;
+
+    async fn get_total_likes(&self, author_id: Uuid) -> Result<i64, sqlx::Error>;
 }
 
 #[async_trait]
@@ -412,5 +414,22 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
 
     Ok(())
 }
+
+async fn get_total_likes(&self, author_id: Uuid) -> Result<i64, sqlx::Error> {
+    let row = sqlx::query!(
+        r#"
+        SELECT COUNT(*) AS total_likes
+        FROM likes l
+        JOIN posts p ON p.id = l.post_id
+        WHERE p.author_id = $1
+        "#,
+        author_id
+    )
+    .fetch_one(&self.pool)
+    .await?;
+
+    Ok(row.total_likes.unwrap_or(0))
+}
+
  
 }

@@ -30,6 +30,7 @@ pub fn post_handler() -> Router {
         .route("/posts/my", get(get_my_posts))
         .route("/post/:id/like", post(like_post))
         .route("/post/:id/unlike", post(unlike_post))
+        .route("/posts/likes", get(get_total_likes))
 }
 
 pub async fn create_post(
@@ -208,6 +209,24 @@ pub async fn unlike_post(
 
         Err(e) => Err(HttpError::server_error(e.to_string())),
     }
+}
+
+pub async fn get_total_likes(
+    Extension(app_state): Extension<Arc<AppState>>,
+    Extension(user): Extension<JWTAuthMiddleware>,
+) -> Result<impl IntoResponse, HttpError> {
+    let user_id = user.user.id;
+
+    let total_likes = app_state
+        .db_client
+        .get_total_likes(user_id)
+        .await
+        .map_err(|e| HttpError::server_error(e.to_string()))?;
+
+    Ok(Json(serde_json::json!({
+        "status": "success",
+        "total_likes": total_likes
+    })))
 }
 
 
