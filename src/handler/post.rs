@@ -28,6 +28,8 @@ pub fn post_handler() -> Router {
         .route("/post/:id", put(update_post))
         .route("/post/:id", delete(delete_post))
         .route("/posts/my", get(get_my_posts))
+        .route("/post/:id/like", post(like_post))
+        .route("/post/:id/unlike", post(unlike_post))
 }
 
 pub async fn create_post(
@@ -61,8 +63,8 @@ pub async fn get_post_by_id(
     Path(post_id): Path<Uuid>,
     Extension(app_state): Extension<Arc<AppState>>,
 ) -> Result<impl IntoResponse, HttpError> {
-
-    app_state.db_client
+    app_state
+        .db_client
         .increment_view(post_id)
         .await
         .map_err(|e| HttpError::server_error(e.to_string()))?;
@@ -158,6 +160,54 @@ pub async fn delete_post(
     ))
 }
 
+pub async fn like_post(
+    Path(post_id): Path<Uuid>,
+    Extension(app_state): Extension<Arc<AppState>>,
+    Extension(user): Extension<JWTAuthMiddleware>,
+) -> Result<impl IntoResponse, HttpError> {
+    let user_id = user.user.id;
 
+    match app_state.db_client.like_post(user_id, post_id).await {
+        Ok(_) => Ok((
+            axum::http::StatusCode::OK,
+            Json(Response {
+                status: "success",
+                message: "Post liked successfully!".to_string(),
+            }),
+        )),
+
+        Err(sqlx::Error::Database(db_err))
+            if db_err.constraint() == Some("unique_user_post_like") =>
+        {
+            Err(HttpError::bad_request("You already liked this post"))
+        }
+
+        Err(e) => Err(HttpError::server_error(e.to_string())),
+    }
+}
+
+pub async fn unlike_post(
+    Path(post_id): Path<Uuid>,
+    Extension(app_state): Extension<Arc<AppState>>,
+    Extension(user): Extension<JWTAuthMiddleware>,
+) -> Result<impl IntoResponse, HttpError> {
+    let user_id = user.user.id;
+
+    match app_state.db_client.unlike_post(user_id, post_id).await {
+        Ok(_) => Ok((
+            axum::http::StatusCode::OK,
+            Json(Response {
+                status: "success",
+                message: "Post unliked successfully!".to_string(),
+            }),
+        )),
+
+        Err(sqlx::Error::RowNotFound) => {
+            Err(HttpError::bad_request("You haven't liked this post yet"))
+        }
+
+        Err(e) => Err(HttpError::server_error(e.to_string())),
+    }
+}
 
 

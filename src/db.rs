@@ -80,6 +80,8 @@ pub trait UserExt {
     async fn get_user_posts(&self, author_id: Uuid) -> Result<Vec<Post>, sqlx::Error>;
 
     async fn increment_view(&self, post_id: Uuid) -> Result<(), sqlx::Error>;
+
+    async fn unlike_post(&self, user_id: Uuid, post_id: Uuid) -> Result<(), sqlx::Error>;
 }
 
 #[async_trait]
@@ -391,4 +393,24 @@ RETURNING id, name, username, email, bio, password, created_at, updated_at",
 
         Ok(())
     }
+
+    async fn unlike_post(&self, user_id: Uuid, post_id: Uuid) -> Result<(), sqlx::Error> {
+    let result = sqlx::query!(
+        r#"
+        DELETE FROM likes
+        WHERE user_id = $1 AND post_id = $2
+        "#,
+        user_id,
+        post_id
+    )
+    .execute(&self.pool)
+    .await?;
+
+    if result.rows_affected() == 0 {
+        return Err(sqlx::Error::RowNotFound);
+    }
+
+    Ok(())
+}
+ 
 }
