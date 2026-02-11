@@ -22,6 +22,7 @@ pub fn auth_handler() -> Router {
     Router::new()
         .route("/register", post(register))
         .route("/login", post(login))
+        .route("/logout", post(logout))
 }
 
 pub async fn register(
@@ -112,3 +113,22 @@ pub async fn login(
         ))
     }
 }
+
+pub async fn logout() -> impl IntoResponse {
+    let cookie = axum::http::HeaderValue::from_str(
+        "access_token=; Path=/; HttpOnly; Max-Age=0; SameSite=None; Secure"
+    ).unwrap();
+
+    let mut headers = HeaderMap::new();
+    headers.insert(header::SET_COOKIE, cookie);
+
+    (
+        headers,
+        Json(Response {
+            status: "success",
+            message: "Logged out successfully".to_string(),
+        }),
+    )
+}
+
+
